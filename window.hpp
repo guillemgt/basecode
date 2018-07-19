@@ -1,22 +1,45 @@
 #ifndef engine_window_h
 #define engine_window_h
 
-#include "engine.hpp"
+#include "basecode.hpp"
 
-#define KEYS_UP    0
-#define KEYS_RIGHT 1
-#define KEYS_DOWN  2
-#define KEYS_LEFT  3
-#define KEYS_SPACE 4
-#define KEYS_ESC   5
-#define KEYS_SHIFT 6
-#define KEYS_ENTER 7
-#define KEYS_Z     8
-#define KEYS_R     9
-#define KEYS_P     10 // Pause
-#define KEYS_N     11 // Next iteration
-
-#define KEYS_NUM   12
+enum {
+    KEYS_UP    =  0,
+    KEYS_RIGHT =  1,
+    KEYS_DOWN  =  2,
+    KEYS_LEFT  =  3,
+    KEYS_SPACE =  4,
+    KEYS_ESC   =  5,
+    KEYS_SHIFT =  6,
+    KEYS_ENTER =  7,
+    KEYS_A     =  8,
+    KEYS_B     =  9,
+    KEYS_C     = 10,
+    KEYS_D     = 11,
+    KEYS_E     = 12,
+    KEYS_F     = 13,
+    KEYS_G     = 14,
+    KEYS_H     = 15,
+    KEYS_I     = 16,
+    KEYS_J     = 17,
+    KEYS_K     = 18,
+    KEYS_L     = 19,
+    KEYS_M     = 20,
+    KEYS_N     = 21,
+    KEYS_O     = 22,
+    KEYS_P     = 23,
+    KEYS_Q     = 24,
+    KEYS_R     = 25,
+    KEYS_S     = 26,
+    KEYS_T     = 27,
+    KEYS_U     = 28,
+    KEYS_V     = 29,
+    KEYS_W     = 30,
+    KEYS_X     = 31,
+    KEYS_Y     = 32,
+    KEYS_Z     = 33,
+#define KEYS_NUM 34
+};
 
 #define MAX_EVENTS_PER_LOOP  256
 #define EVENT_KEYDOWN        0
@@ -57,10 +80,10 @@ struct Event{
     EventData data;
 };
 
-int initGame();
-int gameLogic(bool keys[KEYS_NUM], StaticArray<Event, MAX_EVENTS_PER_LOOP> events);
-void gameDraw();
-void cleanUpGame();
+int init_game();
+int game_loop(bool keys[KEYS_NUM], StaticArray<Event, MAX_EVENTS_PER_LOOP> events);
+void game_draw();
+void cleanup_game();
 
 
 

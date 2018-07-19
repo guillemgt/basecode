@@ -20,7 +20,7 @@ struct MemoryPool{
     
     uint64 size; // Reserved size
     uint64 occupied;
-    uint64 highWaterMark;
+    uint64 high_water_mark;
     uint8 *memory;
     
     MemoryPool();
@@ -28,18 +28,18 @@ struct MemoryPool{
     MemoryPool(uint64 s, uint8 *p);
 };
 
-extern Allocator defaultAllocator;
-extern MemoryPool temporaryStorage;
+extern Allocator default_allocator;
+extern MemoryPool temporary_storage;
 
-#define start_temp_alloc() u64 __xdeg__startingTemporaryStorageMark = temporaryStorage.occupied
-#define end_temp_alloc() temporaryStorage.occupied = __xdeg__startingTemporaryStorageMark
-#define temp_alloc(size) temporaryStorage.allocator.allocate(&temporaryStorage.allocator, size)
+#define start_temp_alloc() u64 __xdeg__starting_temporary_storage_mark = temporary_storage.occupied
+#define end_temp_alloc() temporary_storage.occupied = __xdeg__starting_temporary_storage_mark
+#define temp_alloc(size) temporary_storage.allocator.allocate(&temporary_storage.allocator, size)
 
-void resetMemoryPool(MemoryPool &ma);
-void freeMemory(MemoryPool ma);
+void reset_memory_pool(MemoryPool &ma);
+void free_memory(MemoryPool ma);
 
-void initEngineMemory();
-void cleanupEngineMemory();
-MemoryPool getMemoryPool(u64 size);
+void init_basecode_memory();
+void cleanup_basecode_memory();
+MemoryPool get_memory_pool(u64 size);
 
 #endif /* defined(__engine__memory__) */

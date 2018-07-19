@@ -1,6 +1,6 @@
 #ifndef engine_os_h
 #define engine_os_h
-#include "engine.hpp"
+#include "basecode.hpp"
 
 #define ArrayCount(Array) (sizeof(Array) / sizeof((Array)[0]))
 
@@ -18,25 +18,24 @@
 typedef FILE* OsFile;
 typedef u64 OsTime;
 
-OsFile openGameFile(const char *name, const char *mode);
-OsFile openUserFile(const char *name, const char *mode);
-OsFile openGameFile(String name, const char *mode);
-OsFile openUserFile(String name, const char *mode);
-OsFile openFile(const char *name, const char *mode);
-void getGameFilePath(const char *name, char *dst);
-void getUserFilePath(const char *name, char *dst);
-void readFile(void *dest, unsigned int size, unsigned int amount, OsFile fp);
-void writeFile(void *dest, unsigned int size, unsigned int amount, OsFile fp);
-void closeFile(OsFile);
+OsFile open_game_file(const char *name, const char *mode);
+OsFile open_user_file(const char *name, const char *mode);
+OsFile open_game_file(String name, const char *mode);
+OsFile open_user_file(String name, const char *mode);
+OsFile open_file(const char *name, const char *mode);
+void get_game_file_path(const char *name, char *dst);
+void get_user_file_path(const char *name, char *dst);
+void read_file(void *dest, unsigned int size, unsigned int amount, OsFile fp);
+void write_file(void *dest, unsigned int size, unsigned int amount, OsFile fp);
+void close_file(OsFile);
 
-Array<const char *> filesInGameDirectory(const char *);
+/*Array<const char *> filesInGameDirectory(const char *);
 void renameGameDirectory(const char *src, const char *dst);
 void createGameDirectory(const char *name);
 Array<const char *> filesInUserDirectory(const char *);
 void renameUserDirectory(const char *src, const char *dst);
-void createUserDirectory(const char *name);
+void createUserDirectory(const char *name);*/
 
-void monitorFile(const char *cpath, void (*callback)());
-OsTime fileModificationDate(const char *path);
+OsTime file_modification_date(const char *path);
 
 #endif

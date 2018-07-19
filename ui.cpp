@@ -1,9 +1,9 @@
 #include <assert.h>
 #include <string.h>
 
-#include "engine.hpp"
+#include "basecode.hpp"
 #include "opengl.hpp"
-#include "freetype.hpp"
+#include "fonts.hpp"
 #include "ui.hpp"
 
 #define GOOD_FONT_QUALITY FONT_QUALITY_16
@@ -17,7 +17,6 @@
 
 bool taEditing = true;
 
-extern Vec2i windowSize;
 
 extern char printLog[];
 
@@ -46,7 +45,6 @@ GlBuffer uiColorBuffer;
 
 GLuint uiletter_vao;
 GLuint uiColorVertexArray;
-extern GLuint dummyVAO;
 
 void initUIThing(){
     uiRoot = Tag(DIV, "");
@@ -60,7 +58,7 @@ void initUIThing(){
     const char letterShader[] =
 #include "Shaders/letterShader.glsl"
     ;
-    uiLetterProgram.id = loadShadersByText(letterShader);
+    uiLetterProgram.id = load_shaders_by_text(letterShader);
     uiLetterProgram.positionLocation = glGetAttribLocation(uiLetterProgram.id, "a_position");
     uiLetterProgram.texCoordLocation = glGetAttribLocation(uiLetterProgram.id, "a_texCoords");
     uiLetterProgram.colorLocation    = glGetAttribLocation(uiLetterProgram.id, "a_color");
@@ -70,7 +68,7 @@ void initUIThing(){
     const char colorShader[] =
 #include "Shaders/uiShader.glsl"
     ;
-    uiColorProgram.id = loadShadersByText(colorShader);
+    uiColorProgram.id = load_shaders_by_text(colorShader);
     uiColorProgram.positionLocation = glGetAttribLocation(uiColorProgram.id, "a_position");
     uiColorProgram.colorLocation    = glGetAttribLocation(uiColorProgram.id, "a_color");
     uiColorProgram.infoLocation     = glGetUniformLocation(uiColorProgram.id, "u_info");
@@ -139,7 +137,7 @@ void renderTag(Tag &t, float x0, float &x, float &y, Vec3 *&squaresPos, RgbaColo
             {
                 float width = 0, height = 0;
                 if(t.text.length > 0){
-                    unsigned int l = renderText(x+9.f, y-1.f, -1.f, GOOD_FONT_QUALITY, t.text, textPos, textCol, textCoords, GOOD_FONT_SIZE, &width, &height);
+                    unsigned int l = render_text(x+9.f, y-1.f, -1.f, GOOD_FONT_QUALITY, t.text, textPos, textCol, textCoords, GOOD_FONT_SIZE, &width, &height);
                     textPos += l;
                     textCol += l;
                     textCoords += l;
@@ -171,7 +169,7 @@ void renderTag(Tag &t, float x0, float &x, float &y, Vec3 *&squaresPos, RgbaColo
             {
                 float width = 0, height = 0;
                 if(t.text.length > 0){
-                    unsigned int l = renderText(x+9.f, y-1.f, -1.f, GOOD_FONT_QUALITY, t.text, textPos, textCol, textCoords, GOOD_FONT_SIZE, &width, &height);
+                    unsigned int l = render_text(x+9.f, y-1.f, -1.f, GOOD_FONT_QUALITY, t.text, textPos, textCol, textCoords, GOOD_FONT_SIZE, &width, &height);
                     textPos += l;
                     textCol += l;
                     textCoords += l;
@@ -210,7 +208,7 @@ void renderTag(Tag &t, float x0, float &x, float &y, Vec3 *&squaresPos, RgbaColo
                 squaresCol += 6;
                 
                 if(&t == tagFocus){
-                    float xp = x-(width+30.f)+9.f+renderTextLength(GOOD_FONT_QUALITY, t.text, focusTextPointer);
+                    float xp = x-(width+30.f)+9.f+render_text_length(GOOD_FONT_QUALITY, t.text, focusTextPointer);
                     squaresPos[0] = {xp,     y-2.f,         -0.996f};
                     squaresPos[1] = {xp+2.f, y-2.f,         -0.996f};
                     squaresPos[2] = {xp,     y-height+12.f, -0.996f};
@@ -235,7 +233,7 @@ void renderTag(Tag &t, float x0, float &x, float &y, Vec3 *&squaresPos, RgbaColo
             {
                 float width = 0, height = 0;
                 if(t.text.length > 0){
-                    unsigned int l = renderText(x+9.f, y-1.f, -1.f, GOOD_FONT_QUALITY, t.text, textPos, textCol, textCoords, GOOD_FONT_SIZE, &width, &height);
+                    unsigned int l = render_text(x+9.f, y-1.f, -1.f, GOOD_FONT_QUALITY, t.text, textPos, textCol, textCoords, GOOD_FONT_SIZE, &width, &height);
                     textPos += l;
                     textCol += l;
                     textCoords += l;
@@ -292,7 +290,7 @@ void renderTag(Tag &t, float x0, float &x, float &y, Vec3 *&squaresPos, RgbaColo
             {
                 float width = 0, height = 0;
                 if(t.text.length > 0){
-                    unsigned int l = renderText(x+9.f, y-1.f, -1.f, GOOD_FONT_QUALITY, t.text, textPos, textCol, textCoords, GOOD_FONT_SIZE, &width, &height);
+                    unsigned int l = render_text(x+9.f, y-1.f, -1.f, GOOD_FONT_QUALITY, t.text, textPos, textCol, textCoords, GOOD_FONT_SIZE, &width, &height);
                     textPos += l;
                     textCol += l;
                     textCoords += l;
@@ -325,11 +323,11 @@ void renderTag(Tag &t, float x0, float &x, float &y, Vec3 *&squaresPos, RgbaColo
             {
                 float width = 0, height = 0;
                 if(t.text.length > 0){
-                    unsigned int l = renderText(x+9.f, y-1.f, -1.f, GOOD_FONT_QUALITY, t.text, textPos, textCol, textCoords, GOOD_FONT_SIZE, &width, &height);
+                    unsigned int l = render_text(x+9.f, y-1.f, -1.f, GOOD_FONT_QUALITY, t.text, textPos, textCol, textCoords, GOOD_FONT_SIZE, &width, &height);
                     if(x+width+30.f > 430.f){
                         y -= 35.f;
                         x = x0;
-                        l = renderText(x+9.f, y-1.f, -1.f, GOOD_FONT_QUALITY, t.text, textPos, textCol, textCoords, GOOD_FONT_SIZE, &width, &height);
+                        l = render_text(x+9.f, y-1.f, -1.f, GOOD_FONT_QUALITY, t.text, textPos, textCol, textCoords, GOOD_FONT_SIZE, &width, &height);
                     }
                     textPos += l;
                     textCol += l;
@@ -376,7 +374,7 @@ void renderTag(Tag &t, float x0, float &x, float &y, Vec3 *&squaresPos, RgbaColo
             {
                 float width = 0, height = 0;
                 if(t.text.length > 0){
-                    unsigned int l = renderText(x, y, -1.f, SMALL_FONT_QUALITY, t.text, textPos, textCol, textCoords, SMALL_FONT_SIZE, &width, &height);
+                    unsigned int l = render_text(x, y, -1.f, SMALL_FONT_QUALITY, t.text, textPos, textCol, textCoords, SMALL_FONT_SIZE, &width, &height);
                     textPos += l;
                     textCol += l;
                     textCoords += l;
@@ -393,7 +391,7 @@ void renderTag(Tag &t, float x0, float &x, float &y, Vec3 *&squaresPos, RgbaColo
                 y = t.p.y;
                 float width = 0, height = 0;
                 if(t.text.length > 1){
-                    unsigned int l = renderText(x+5.f, y-5.f, -1.f, SMALL_FONT_QUALITY, t.text, textPos, textCol, textCoords, SMALL_FONT_SIZE, &width, &height);
+                    unsigned int l = render_text(x+5.f, y-5.f, -1.f, SMALL_FONT_QUALITY, t.text, textPos, textCol, textCoords, SMALL_FONT_SIZE, &width, &height);
                     textPos += l;
                     textCol += l;
                     textCoords += l;
@@ -428,7 +426,7 @@ void renderTag(Tag &t, float x0, float &x, float &y, Vec3 *&squaresPos, RgbaColo
             default:
                 if(t.text.length > 0){
                     float width = 0;
-                    unsigned int l = renderText(x, y, -1.f, GOOD_FONT_QUALITY, t.text, textPos, textCol, textCoords, GOOD_FONT_SIZE, &width, nullptr);
+                    unsigned int l = render_text(x, y, -1.f, GOOD_FONT_QUALITY, t.text, textPos, textCol, textCoords, GOOD_FONT_SIZE, &width, nullptr);
                     x += width+10.f;
                     textPos += l;
                     textCol += l;
@@ -472,14 +470,14 @@ void renderUi(){
     
     renderTags(10.f, -10.f, squaresPos, squaresCol, textPos, textCol, textCoords);
     
-    setVectorDynamicBuffer(uiColorBuffer.positions, (GLfloat *)squaresPos, 3*count.x);
-    setVectorDynamicBuffer(uiColorBuffer.colors, (GLubyte *)squaresCol, 4*count.x);
+    set_buffer_data_dynamic(uiColorBuffer.positions, (GLfloat *)squaresPos, 3*count.x);
+    set_buffer_data_dynamic(uiColorBuffer.colors, (GLubyte *)squaresCol, 4*count.x);
     uiColorBuffer.verts = count.x;
     
     if(count.y > 0){
-        setVectorDynamicBuffer(uiLetterBuffer.positions, (GLfloat *)textPos, 3*count.y);
-        setVectorDynamicBuffer(uiLetterBuffer.colors, (GLubyte *)textCol, 4*count.y);
-        setVectorDynamicBuffer(uiLetterBuffer.coords, (GLfloat *)textCoords, 2*count.y);
+        set_buffer_data_dynamic(uiLetterBuffer.positions, (GLfloat *)textPos, 3*count.y);
+        set_buffer_data_dynamic(uiLetterBuffer.colors, (GLubyte *)textCol, 4*count.y);
+        set_buffer_data_dynamic(uiLetterBuffer.coords, (GLfloat *)textCoords, 2*count.y);
     }
     uiLetterBuffer.verts = count.y;
     
@@ -487,14 +485,14 @@ void renderUi(){
     
     // Do the drawing
     
-    glViewport(0, 0, windowSize.x, windowSize.y);
-    glScissor(0, 0, windowSize.x, windowSize.y);
+    glViewport(0, 0, window_size.x, window_size.y);
+    glScissor(0, 0, window_size.x, window_size.y);
     
     if(uiLetterBuffer.verts > 0){
         glUseProgram(uiLetterProgram.id);
         
         glUniform1i(uiLetterProgram.samplerLocation, 1);
-        glUniform4f(uiLetterProgram.infoLocation, 2.f/windowSize.x, 2.f/windowSize.y, windowSize.x/2.f, -(windowSize.y/2.f));
+        glUniform4f(uiLetterProgram.infoLocation, 2.f/window_size.x, 2.f/window_size.y, window_size.x/2.f, -(window_size.y/2.f));
         
         glBindVertexArray(uiletter_vao);
         glDrawArrays(GL_TRIANGLES, 0, uiLetterBuffer.verts);
@@ -502,12 +500,12 @@ void renderUi(){
     
     if(uiColorBuffer.verts > 0){
         glUseProgram(uiColorProgram.id);
-        glUniform4f(uiColorProgram.infoLocation, 2.f/windowSize.x, 2.f/windowSize.y, windowSize.x/2.f, -(windowSize.y/2.f));
+        glUniform4f(uiColorProgram.infoLocation, 2.f/window_size.x, 2.f/window_size.y, window_size.x/2.f, -(window_size.y/2.f));
         
         glBindVertexArray(uiColorVertexArray);
         glDrawArrays(GL_TRIANGLES, 0, uiColorBuffer.verts);
     }
-    glBindVertexArray(dummyVAO);
+    //glBindVertexArray(dummyVAO);
 }
 
 Tag *isClickOnTag(Vec2 p, Tag &t){
@@ -541,7 +539,7 @@ void leftClick(Vec2 p){
             int i;
             for(i=0; i<t->text.length-1; i++){
                 x2 = x1;
-                x1 = t->p.x+9.f+renderTextLength(GOOD_FONT_QUALITY, t->text, i);
+                x1 = t->p.x+9.f+render_text_length(GOOD_FONT_QUALITY, t->text, i);
                 if(x1 > p.x)
                     break;
             }

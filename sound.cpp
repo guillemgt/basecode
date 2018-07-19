@@ -1,7 +1,7 @@
 #include <stdint.h>
 #include <thread>
 
-#include "engine.hpp"
+#include "basecode.hpp"
 #include "sound.hpp"
 
 #if OS != OS_IOS && 0
@@ -341,11 +341,11 @@ void Sound::stop(){}
 void Sound::free(){}
 void Sound::setVolume(float volume){}
 
-void initSound(){}
-void updateSounds(){}
-void pauseSounds(){}
-void playSounds(){}
-void toggleSounds(bool on){}
-void cleanupSound(){}
+void init_basecode_sound(){}
+void update_sounds(){}
+void pause_sounds(){}
+void play_sounds(){}
+void toggle_sounds(bool on){}
+void cleanup_basecode_sound(){}
 
 #endif

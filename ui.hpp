@@ -1,7 +1,7 @@
 #ifndef engine_ui_h
 #define engine_ui_h
 
-#include "engine.hpp"
+#include "basecode.hpp"
 
 #define CURSOR_ARROW   0
 #define CURSOR_POINTER 1

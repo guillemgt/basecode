@@ -1,10 +1,10 @@
 #include <assert.h>
 
-#include "engine.hpp"
+#include "basecode.hpp"
 #include "memory.hpp"
 
-MemoryPool totalHeapMemory;
-u8 *totalHeapMemoryNextSection;
+MemoryPool total_heap_memory;
+u8 *total_heap_memory_next_section;
 
 // Normal allocator
 void * normal_allocate(Allocator *allocator, u32 size){
@@ -25,12 +25,12 @@ NormalAllocator::NormalAllocator(){
     allocator.deallocate = &normal_deallocate;
 }
 
-Allocator defaultAllocator = {
+Allocator default_allocator = {
     &normal_allocate,
     &normal_deallocate
 };
 
-MemoryPool temporaryStorage;
+MemoryPool temporary_storage;
 
 // Temp allocator
 void * temp_allocate(Allocator *alloc, u32 s){
@@ -38,19 +38,19 @@ void * temp_allocate(Allocator *alloc, u32 s){
     u8 *t = allocator->memory+allocator->occupied;
     allocator->occupied += s;
     assert(allocator->occupied <= allocator->size);
-    if(allocator->occupied > allocator->highWaterMark)
-        allocator->highWaterMark = allocator->occupied;
+    if(allocator->occupied > allocator->high_water_mark)
+        allocator->high_water_mark = allocator->occupied;
     return t;
 }
 void temp_deallocate(Allocator *alloc, void *p){
     
 }
-void resetMemoryPool(MemoryPool &ma){
+void reset_memory_pool(MemoryPool &ma){
     ma.occupied = 0;
 }
 MemoryPool::MemoryPool(uint64 s){
     occupied = 0;
-    highWaterMark = 0;
+    high_water_mark = 0;
     size = s;
     memory = (uint8 *)malloc(s*sizeof(uint8));
     
@@ -59,7 +59,7 @@ MemoryPool::MemoryPool(uint64 s){
 }
 MemoryPool::MemoryPool(uint64 s, uint8 *p){
     occupied = 0;
-    highWaterMark = 0;
+    high_water_mark = 0;
     size = s;
     memory = p;
     
@@ -69,7 +69,7 @@ MemoryPool::MemoryPool(uint64 s, uint8 *p){
 
 MemoryPool::MemoryPool(){
     occupied = 0;
-    highWaterMark = 0;
+    high_water_mark = 0;
     size = 0;
     memory = nullptr;
     
@@ -77,22 +77,22 @@ MemoryPool::MemoryPool(){
     allocator.deallocate = nullptr;
 }
 
-void freeMemory(MemoryPool ma){
+void free_memory(MemoryPool ma){
     free(ma.memory);
 }
 
 
 
-void initEngineMemory(){
-    totalHeapMemory = MemoryPool(MB(14L));
-    totalHeapMemoryNextSection = (u8 *) totalHeapMemory.memory;
-    temporaryStorage = getMemoryPool(KB(13990L));
+void init_basecode_memory(){
+    total_heap_memory = MemoryPool(MB(14L));
+    total_heap_memory_next_section = (u8 *) total_heap_memory.memory;
+    temporary_storage = get_memory_pool(KB(13990L));
 }
-MemoryPool getMemoryPool(u64 size){
-    MemoryPool ma = MemoryPool(size, totalHeapMemoryNextSection);
-    totalHeapMemoryNextSection += size;
+MemoryPool get_memory_pool(u64 size){
+    MemoryPool ma = MemoryPool(size, total_heap_memory_next_section);
+    total_heap_memory_next_section += size;
     return ma;
 }
-void cleanupEngineMemory(){
-    freeMemory(totalHeapMemory);
+void cleanup_basecode_memory(){
+    free_memory(total_heap_memory);
 }

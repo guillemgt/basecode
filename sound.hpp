@@ -34,11 +34,11 @@ struct Sound{
     Sound(const char *name, float volume);
 };
 
-void initSound();
-void updateSounds();
-void pauseSounds();
-void playSounds();
-void toggleSounds(bool on);
-void cleanupSound();
+void init_basecode_sound();
+void update_sounds();
+void pause_sounds();
+void play_sounds();
+void toggle_sounds(bool on);
+void cleanup_basecode_sound();
 
 #endif /* defined(__ta__sound__) */

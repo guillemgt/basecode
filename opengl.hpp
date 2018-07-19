@@ -39,7 +39,7 @@
 #define glDeleteVertexArrays glDeleteVertexArraysAPPLE
 #endif
 
-#define checkOpenGLError() _checkOpenGLError(__LINE__, __FILE__)
+#define check_openGL_error() _check_openGL_error(__LINE__, __FILE__)
 
 struct GlBuffer{
     GLuint positions, colors, coords;
@@ -80,8 +80,8 @@ inline void cleanupPositionsColorsCoords(GlBuffer *t){
     t->verts = 0;
 }
 
-bool initEngineOpenGL();
-bool cleanupEngineOpenGL();
+bool init_basecode_openGL();
+bool cleanup_basecode_openGL();
 
 struct Vertex_PC {
     Vec3 p;
@@ -109,29 +109,22 @@ struct Vertex_PNC {
     RgbColor c;
 };
 
+template<typename T> inline void set_buffer_data(GLuint buffer, T *vert, u32 size, GLuint mode){
+    glBindBuffer(GL_ARRAY_BUFFER, buffer);
+    glBufferData(GL_ARRAY_BUFFER, size*sizeof(T), vert, mode);
+}
+#define set_buffer_data_static(b, v, s) set_buffer_data(b, v, s, GL_STATIC_DRAW)
+#define set_buffer_data_dynamic(b, v, s) set_buffer_data(b, v, s, GL_DYNAMIC_DRAW)
+#define set_buffer_data_stream(b, v, s) set_buffer_data(b, v, s, GL_STREAM_DRAW)
 
-void setVectorStaticBuffer(GLuint buffer, GLfloat *vert, unsigned int size);
-void setVectorDynamicBuffer(GLuint buffer, GLfloat *vert, unsigned int size);
-void setVectorStaticBuffer(GLuint buffer, GLubyte *vert, unsigned int size);
-void setVectorDynamicBuffer(GLuint buffer, GLubyte *vert, unsigned int size);
-void setVectorStaticBuffer(GLuint buffer, Vertex_PC *vert, unsigned int size);
-void setVectorDynamicBuffer(GLuint buffer, Vertex_PC *vert, unsigned int size);
-void setVectorStaticBuffer(GLuint buffer, Vertex_PCa *vert, unsigned int size);
-void setVectorDynamicBuffer(GLuint buffer, Vertex_PCa *vert, unsigned int size);
-void setVectorStreamBuffer(GLuint buffer, Vertex_PC *vert, unsigned int size);
-void setVectorStaticBuffer(GLuint buffer, Vertex_PT *vert, unsigned int size);
-void setVectorDynamicBuffer(GLuint buffer, Vertex_PT *vert, unsigned int size);
-void setVectorStaticBuffer(GLuint buffer, Vertex_PTa *vert, unsigned int size);
-void setVectorDynamicBuffer(GLuint buffer, Vertex_PTa *vert, unsigned int size);
-void setVectorStaticBuffer(GLuint buffer, Vertex_PNC *vert, unsigned int size);
-void setVectorStaticBuffer(GLuint buffer, Vertex_PTCa *vert, unsigned int size);
+void _check_openGL_error(int line, const char *file);
 
-void _checkOpenGLError(int line, const char *file);
+GLuint load_shaders(const char *file_path);
+GLuint load_shaders(const char *file_path, const char *prefix);
+GLuint load_shaders_by_text(const char *text);
 
-GLuint loadShaders(const char *file_path);
-GLuint loadShaders(const char *file_path, const char *prefix);
-GLuint loadShadersByText(const char *text);
+void load_texture(GLuint *texture, const char *path);
 
-void loadTexture(GLuint *texture, const char *path);
+extern Vec2i window_size;
 
 #endif /* defined(__topo__render__) */

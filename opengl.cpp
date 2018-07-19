@@ -2,9 +2,9 @@
 #include <vector>
 #include <string>
 
-#include "engine.hpp"
+#include "basecode.hpp"
 #include "opengl.hpp"
-#include "freetype.hpp"
+#include "fonts.hpp"
 
 #if OS != OS_WASM
 #include "Include/stb_image.h"
@@ -13,11 +13,9 @@
 #include <SDL/SDL_image.h>
 #endif
 
-GLuint dummyVAO;
+Vec2i window_size;
 
-Vec2i windowSize;
-
-bool initEngineOpenGL(){
+bool init_basecode_openGL(){
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -30,83 +28,18 @@ bool initEngineOpenGL(){
     
     glEnable(GL_SCISSOR_TEST);
     
-#if OS != OS_WASM
-    glGenVertexArrays(1, &dummyVAO);
-#endif
-    
     // glActiveTexture(GL_TEXTURE0);
     // loadTexture(dTexture, (resourcePath()+"textures.png").c_str());
     
     return true;
 }
 
-bool cleanupEngineOpenGL(){
+bool cleanup_basecode_openGL(){
     // @Incomplete: Do things
     return true;
 }
 
-void setVectorStaticBuffer(GLuint buffer, GLfloat *vert, unsigned int size){
-    glBindBuffer(GL_ARRAY_BUFFER, buffer);
-    glBufferData(GL_ARRAY_BUFFER, size*sizeof(GLfloat), vert, GL_STATIC_DRAW);
-}
-void setVectorDynamicBuffer(GLuint buffer, GLfloat *vert, unsigned int size){
-    glBindBuffer(GL_ARRAY_BUFFER, buffer);
-    glBufferData(GL_ARRAY_BUFFER, size*sizeof(GLfloat), vert, GL_DYNAMIC_DRAW);
-}
-void setVectorStaticBuffer(GLuint buffer, GLubyte *vert, unsigned int size){
-    glBindBuffer(GL_ARRAY_BUFFER, buffer);
-    glBufferData(GL_ARRAY_BUFFER, size*sizeof(GLubyte), vert, GL_STATIC_DRAW);
-}
-void setVectorDynamicBuffer(GLuint buffer, GLubyte *vert, unsigned int size){
-    glBindBuffer(GL_ARRAY_BUFFER, buffer);
-    glBufferData(GL_ARRAY_BUFFER, size*sizeof(GLubyte), vert, GL_DYNAMIC_DRAW);
-}
-void setVectorStaticBuffer(GLuint buffer, Vertex_PNC *vert, unsigned int size){
-    glBindBuffer(GL_ARRAY_BUFFER, buffer);
-    glBufferData(GL_ARRAY_BUFFER, size*sizeof(Vertex_PNC), vert, GL_STATIC_DRAW);
-}
-void setVectorStaticBuffer(GLuint buffer, Vertex_PC *vert, unsigned int size){
-    glBindBuffer(GL_ARRAY_BUFFER, buffer);
-    glBufferData(GL_ARRAY_BUFFER, size*sizeof(Vertex_PC), vert, GL_STATIC_DRAW);
-}
-void setVectorDynamicBuffer(GLuint buffer, Vertex_PC *vert, unsigned int size){
-    glBindBuffer(GL_ARRAY_BUFFER, buffer);
-    glBufferData(GL_ARRAY_BUFFER, size*sizeof(Vertex_PC), vert, GL_DYNAMIC_DRAW);
-}
-void setVectorStreamBuffer(GLuint buffer, Vertex_PC *vert, unsigned int size){
-    glBindBuffer(GL_ARRAY_BUFFER, buffer);
-    glBufferData(GL_ARRAY_BUFFER, size*sizeof(Vertex_PC), vert, GL_STREAM_DRAW);
-}
-void setVectorStaticBuffer(GLuint buffer, Vertex_PCa *vert, unsigned int size){
-    glBindBuffer(GL_ARRAY_BUFFER, buffer);
-    glBufferData(GL_ARRAY_BUFFER, size*sizeof(Vertex_PCa), vert, GL_STATIC_DRAW);
-}
-void setVectorDynamicBuffer(GLuint buffer, Vertex_PCa *vert, unsigned int size){
-    glBindBuffer(GL_ARRAY_BUFFER, buffer);
-    glBufferData(GL_ARRAY_BUFFER, size*sizeof(Vertex_PCa), vert, GL_DYNAMIC_DRAW);
-}
-void setVectorDynamicBuffer(GLuint buffer, Vertex_PT *vert, unsigned int size){
-    glBindBuffer(GL_ARRAY_BUFFER, buffer);
-    glBufferData(GL_ARRAY_BUFFER, size*sizeof(Vertex_PT), vert, GL_DYNAMIC_DRAW);
-}
-void setVectorStaticBuffer(GLuint buffer, Vertex_PT *vert, unsigned int size){
-    glBindBuffer(GL_ARRAY_BUFFER, buffer);
-    glBufferData(GL_ARRAY_BUFFER, size*sizeof(Vertex_PT), vert, GL_STATIC_DRAW);
-}
-void setVectorDynamicBuffer(GLuint buffer, Vertex_PTa *vert, unsigned int size){
-    glBindBuffer(GL_ARRAY_BUFFER, buffer);
-    glBufferData(GL_ARRAY_BUFFER, size*sizeof(Vertex_PTa), vert, GL_DYNAMIC_DRAW);
-}
-void setVectorStaticBuffer(GLuint buffer, Vertex_PTa *vert, unsigned int size){
-    glBindBuffer(GL_ARRAY_BUFFER, buffer);
-    glBufferData(GL_ARRAY_BUFFER, size*sizeof(Vertex_PTa), vert, GL_STATIC_DRAW);
-}
-void setVectorStaticBuffer(GLuint buffer, Vertex_PTCa *vert, unsigned int size){
-    glBindBuffer(GL_ARRAY_BUFFER, buffer);
-    glBufferData(GL_ARRAY_BUFFER, size*sizeof(Vertex_PTCa), vert, GL_STATIC_DRAW);
-}
-
-void _checkOpenGLError(int line, const char *file){
+void _check_openGL_error(int line, const char *file){
     GLenum err;
     while((err = glGetError()) != GL_NO_ERROR){
         printf("[%s:%i] OpenGL Error: ", file, line);
@@ -149,11 +82,11 @@ void _checkOpenGLError(int line, const char *file){
     }
 }
 
-GLuint loadShaders(const char *file_path){
-    return loadShaders(file_path, "");
+GLuint load_shaders(const char *file_path){
+    return load_shaders(file_path, "");
 }
 
-GLuint loadShaders(const char *file_path, const char *prefix){
+GLuint load_shaders(const char *file_path, const char *prefix){
     start_temp_alloc();
     
     // Create the shaders
@@ -170,8 +103,8 @@ GLuint loadShaders(const char *file_path, const char *prefix){
      fseek(fp, 0, SEEK_END);
      long length = ftell(fp);
      fseek(fp, 0, SEEK_SET);
-     String vertexShaderCode((u32)(strlen(prefix)+30+length), temporaryStorage.allocator);
-     String fragmentShaderCode((u32)(strlen(prefix)+30+length), temporaryStorage.allocator);
+     String vertexShaderCode((u32)(strlen(prefix)+30+length), temporary_storage.allocator);
+     String fragmentShaderCode((u32)(strlen(prefix)+30+length), temporary_storage.allocator);
      
      fscanf(fp, "%[^\n]s", vertexShaderCode.text);
      
@@ -212,7 +145,7 @@ GLuint loadShaders(const char *file_path, const char *prefix){
     if(result == GL_FALSE){
         glGetShaderiv(vertexShaderID, GL_INFO_LOG_LENGTH, &infoLogLength);
         if(infoLogLength > 0){
-            String vertexShaderErrorMessage(infoLogLength, temporaryStorage.allocator);
+            String vertexShaderErrorMessage(infoLogLength, temporary_storage.allocator);
             glGetShaderInfoLog(vertexShaderID, infoLogLength, NULL, vertexShaderErrorMessage.text);
             fprintf(stdout, "Couldn't compile vertex shader:\n%s\n\n", vertexShaderErrorMessage.text);
         }
@@ -228,7 +161,7 @@ GLuint loadShaders(const char *file_path, const char *prefix){
     if(result == GL_FALSE){
         glGetShaderiv(fragmentShaderID, GL_INFO_LOG_LENGTH, &infoLogLength);
         if(infoLogLength > 0){
-            String fragmentShaderErrorMessage(infoLogLength, temporaryStorage.allocator);
+            String fragmentShaderErrorMessage(infoLogLength, temporary_storage.allocator);
             glGetShaderInfoLog(fragmentShaderID, infoLogLength, NULL, fragmentShaderErrorMessage.text);
             fprintf(stdout, "Couldn't compile fragment shader:\n%s\n\n", fragmentShaderErrorMessage.text);
         }
@@ -246,7 +179,7 @@ GLuint loadShaders(const char *file_path, const char *prefix){
     if(result == GL_FALSE){
         glGetProgramiv(programID, GL_INFO_LOG_LENGTH, &infoLogLength);
         if(infoLogLength > 0){
-            String programErrorMessage(infoLogLength, temporaryStorage.allocator);
+            String programErrorMessage(infoLogLength, temporary_storage.allocator);
             glGetProgramInfoLog(programID, infoLogLength, NULL, programErrorMessage.text);
             fprintf(stdout, "Couldn't link shader: %s\n", programErrorMessage.text);
             glValidateProgram(programID);
@@ -260,11 +193,11 @@ GLuint loadShaders(const char *file_path, const char *prefix){
     return programID;
 }
 
-GLuint loadShadersByText(const char *text){
+GLuint load_shaders_by_text(const char *text){
     start_temp_alloc();
     
-    String vertexShaderCode(temporaryStorage.allocator);
-    String fragmentShaderCode(temporaryStorage.allocator);
+    String vertexShaderCode(temporary_storage.allocator);
+    String fragmentShaderCode(temporary_storage.allocator);
     
     // Create the shaders
     GLuint vertexShaderID = glCreateShader(GL_VERTEX_SHADER);
@@ -296,7 +229,7 @@ GLuint loadShadersByText(const char *text){
     if(result == GL_FALSE){
         glGetShaderiv(vertexShaderID, GL_INFO_LOG_LENGTH, &infoLogLength);
         if(infoLogLength > 0){
-            String vertexShaderErrorMessage(infoLogLength, temporaryStorage.allocator);
+            String vertexShaderErrorMessage(infoLogLength, temporary_storage.allocator);
             glGetShaderInfoLog(vertexShaderID, infoLogLength, NULL, vertexShaderErrorMessage.text);
             fprintf(stdout, "Couldn't compile vertex shader:\n%s\n\n", vertexShaderErrorMessage.text);
         }
@@ -312,7 +245,7 @@ GLuint loadShadersByText(const char *text){
     if(result == GL_FALSE){
         glGetShaderiv(fragmentShaderID, GL_INFO_LOG_LENGTH, &infoLogLength);
         if(infoLogLength > 0){
-            String fragmentShaderErrorMessage(infoLogLength, temporaryStorage.allocator);
+            String fragmentShaderErrorMessage(infoLogLength, temporary_storage.allocator);
             glGetShaderInfoLog(fragmentShaderID, infoLogLength, NULL, fragmentShaderErrorMessage.text);
             fprintf(stdout, "Couldn't compile fragment shader:\n%s\n\n", fragmentShaderErrorMessage.text);
         }
@@ -330,7 +263,7 @@ GLuint loadShadersByText(const char *text){
     if(result == GL_FALSE){
         glGetProgramiv(programID, GL_INFO_LOG_LENGTH, &infoLogLength);
         if(infoLogLength > 0){
-            String programErrorMessage(infoLogLength, temporaryStorage.allocator);
+            String programErrorMessage(infoLogLength, temporary_storage.allocator);
             glGetProgramInfoLog(programID, infoLogLength, NULL, programErrorMessage.text);
             fprintf(stdout, "Couldn't link shader: %s\n", programErrorMessage.text);
             glValidateProgram(programID);
@@ -345,16 +278,16 @@ GLuint loadShadersByText(const char *text){
 }
 
 #if OS != OS_WASM
-u8 *loadImage(const char *path, int *width, int *height, int *channels){
+u8 *load_image(const char *path, int *width, int *height, int *channels){
     return stbi_load(path, width, height, channels, 0);
 }
-void freeImage(u8 *img){
+void free_image(u8 *img){
     stbi_image_free(img);
 }
 #else
 static SDL_Surface* lastLoadedImage = nullptr;
 static u8* lastLoadedPixels = nullptr;
-u8 *loadImage(const char *path, int *width, int *height, int *channels){
+u8 *load_image(const char *path, int *width, int *height, int *channels){
     assert(lastLoadedImage == nullptr);
     SDL_Surface *image;
     if(!(image = IMG_Load(path))){
@@ -368,7 +301,7 @@ u8 *loadImage(const char *path, int *width, int *height, int *channels){
     lastLoadedPixels = (u8 *)image->pixels;
     return (u8 *)image->pixels;
 }
-void freeImage(u8 *pixels){
+void free_image(u8 *pixels){
     assert(pixels == lastLoadedPixels);
     SDL_FreeSurface(lastLoadedImage);
     lastLoadedImage = nullptr;
@@ -376,9 +309,9 @@ void freeImage(u8 *pixels){
 }
 #endif
 
-void loadTexture(GLuint *texture, const char *path){
+void load_texture(GLuint *texture, const char *path){
     int width, height, channels;
-    u8* image = loadImage(path, &width, &height, &channels);
+    u8* image = load_image(path, &width, &height, &channels);
     
     // Flip texture Y axis
     int i, j;
@@ -398,5 +331,5 @@ void loadTexture(GLuint *texture, const char *path){
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
-    freeImage(image);
+    free_image(image);
 }

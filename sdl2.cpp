@@ -1,11 +1,11 @@
 #include <iostream>
 
-#include "engine.hpp"
+#include "basecode.hpp"
 #include "opengl.hpp"
 #include "window.hpp"
 #include "sdl2.hpp"
 
-extern Vec2i windowSize;
+extern Vec2i window_size;
 extern f32 TIME_STEP;
 
 #if OS != OS_WASM
@@ -18,23 +18,23 @@ extern f32 TIME_STEP;
 bool InitSDL(WindowThingy **window, SDL_GLContext *context){
 #if OS != OS_WASM
     if (SDL_Init(SDL_INIT_VIDEO) < 0){
-        std::cout << "Failed to init SDL\n";
+        printf("Failed to init SDL\n");
         return false;
     }
     
     // Create our window centered at 512x512 resolution
     *window = SDL_CreateWindow("LAGAGLGLA", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 680, 680, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
-    windowSize = Vec2i(680, 680);
+    window_size = Vec2i(680, 680);
     
     // Check that everything worked out okay
     if(!(*window)){
-        std::cout << "Unable to create window\n";
+        printf("Unable to create window\n");
         //CheckSDLError(__LINE__);
         return false;
     }
 #else
     if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_TIMER) < 0){
-        std::cout << "Failed to init SDL\n";
+        printf("Failed to init SDL\n");
         return false;
     }
     *window = SDL_SetVideoMode(0, 0, 24, SDL_OPENGL | SDL_RESIZABLE);
@@ -81,8 +81,8 @@ void quitSDL(SDL_Window *window, SDL_GLContext context){
     SDL_Quit();
 }
 
-const int wantedKeys[] = {SDL_SCANCODE_UP, SDL_SCANCODE_RIGHT, SDL_SCANCODE_DOWN, SDL_SCANCODE_LEFT, SDL_SCANCODE_SPACE, SDL_SCANCODE_ESCAPE, SDL_SCANCODE_LSHIFT, SDL_SCANCODE_EXECUTE, SDL_SCANCODE_Z, SDL_SCANCODE_R, SDL_SCANCODE_P, SDL_SCANCODE_N};
-bool keys[KEYS_NUM] = {false, false, false, false, false, false, false, false, false, false, false, false};
+const int wantedKeys[] = {SDL_SCANCODE_UP, SDL_SCANCODE_RIGHT, SDL_SCANCODE_DOWN, SDL_SCANCODE_LEFT, SDL_SCANCODE_SPACE, SDL_SCANCODE_ESCAPE, SDL_SCANCODE_LSHIFT, SDL_SCANCODE_EXECUTE, SDL_SCANCODE_A, SDL_SCANCODE_B, SDL_SCANCODE_C, SDL_SCANCODE_D, SDL_SCANCODE_E, SDL_SCANCODE_F, SDL_SCANCODE_G, SDL_SCANCODE_H, SDL_SCANCODE_I, SDL_SCANCODE_J, SDL_SCANCODE_K, SDL_SCANCODE_L, SDL_SCANCODE_M, SDL_SCANCODE_N, SDL_SCANCODE_O, SDL_SCANCODE_P, SDL_SCANCODE_Q, SDL_SCANCODE_R, SDL_SCANCODE_S, SDL_SCANCODE_T, SDL_SCANCODE_U, SDL_SCANCODE_V, SDL_SCANCODE_W, SDL_SCANCODE_X, SDL_SCANCODE_Y, SDL_SCANCODE_Z};
+bool keys[KEYS_NUM] = {false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false};
 StaticArray<Event, MAX_EVENTS_PER_LOOP> events = StaticArray<Event, MAX_EVENTS_PER_LOOP>();
 WindowThingy *window;
 
@@ -183,7 +183,7 @@ inline void SDL_Loop(){
             case SDL_WINDOWEVENT:
                 switch(e.window.event){
                     case SDL_WINDOWEVENT_RESIZED:
-                        windowSize = Vec2i(e.window.data1, e.window.data2);
+                        window_size = Vec2i(e.window.data1, e.window.data2);
                         events.push({EVENT_RESIZE, EventData(e.window.data1, e.window.data2)});
                         break;
                     case SDL_WINDOWEVENT_CLOSE:
@@ -200,12 +200,12 @@ inline void SDL_Loop(){
     }
 
 #if OS == OS_WASM
-    if(!gameLogic(keys, events)){
-        emscripten_pause_main_loop(); // do we need this?
+    if(!game_logic(keys, events)){
+        emscripten_pause_main_loop();
     }
 #endif
     
-    gameDraw();
+    game_draw();
     
 #if OS != OS_WASM
     SDL_GL_SwapWindow(window);
@@ -232,15 +232,15 @@ int main(int argc, char ** argv){
     
     TIME_STEP = 1./60.;
     
-    initEngine();
+    init_basecode();
     
-    initGame();
+    init_game();
     
     
 #if OS != OS_WASM
     do{
         SDL_Loop();
-    } while(gameLogic(keys, events));
+    } while(game_loop(keys, events));
 #else
     emscripten_set_main_loop(SDL_Loop, 0, 1);
 #endif

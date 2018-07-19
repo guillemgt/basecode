@@ -92,13 +92,13 @@ struct RgbaColor {
 struct Angle;
 #endif
 
-inline int goodMod(int a, int m){
+inline int good_mod(int a, int m){
     a = a%m;
     if(a < 0)
         return a+m;
     return a;
 }
-inline int aproxGoodMod(int a, int m){
+inline int aprox_good_mod(int a, int m){
     if(a < 0)
         return a+m;
     if(a >= m)
@@ -214,11 +214,11 @@ inline Vec2 orthogonal(Vec2 v){
     return Vec2(-v.y, v.x);
 }
 
-inline Vec2i goodMod(Vec2i a, int m){
-    return Vec2i(goodMod(a.x, m), goodMod(a.y, m));
+inline Vec2i good_mod(Vec2i a, int m){
+    return Vec2i(good_mod(a.x, m), good_mod(a.y, m));
 }
-inline Vec2i aproxGoodMod(Vec2i a, int m){
-    return Vec2i(aproxGoodMod(a.x, m), aproxGoodMod(a.y, m));
+inline Vec2i aprox_good_mod(Vec2i a, int m){
+    return Vec2i(aprox_good_mod(a.x, m), aprox_good_mod(a.y, m));
 }
 
 inline Vec2 floor(Vec2 v){
@@ -1220,7 +1220,7 @@ inline Quaternion slerp(float t, Quaternion q1, Quaternion q2){
 template <typename T> struct Array{
     u32 size, reserved;
     T *data;
-    Allocator *allocator = &defaultAllocator;
+    Allocator *allocator = &default_allocator;
     
     T& operator[](u32 index){
         if(index > size){
@@ -1437,7 +1437,7 @@ template <typename T, u32 aS> inline void free(StaticArray<T, aS> &a){
 struct Array_bool{
     u32 size, byteSize;
     uint8 *data;
-    Allocator *allocator = &defaultAllocator;
+    Allocator *allocator = &default_allocator;
     
     uint8 operator[](u32 index){
         if(index > size){
@@ -1578,7 +1578,7 @@ inline void free(Array_uint2 &a){
 struct Array_uint4{
     u32 size, byteSize;
     uint8 *data;
-    Allocator *allocator = &defaultAllocator;
+    Allocator *allocator = &default_allocator;
     
     uint8 operator[](u32 index){
         if(index > size){
@@ -1843,7 +1843,7 @@ template <u32 aS> inline void free(StaticArray_uint4<aS> &a){
 template <typename T> struct Matrix{
     u32 cols, rows;
     Array<T> array;
-    Allocator *allocator = &defaultAllocator;
+    Allocator *allocator = &default_allocator;
     
     T& at(u32 i, u32 j){
         assert(i < rows);
@@ -2276,7 +2276,7 @@ struct String{
     char *text;
     u32 length, reserved;
     bool initialized;
-    Allocator *allocator = &defaultAllocator;
+    Allocator *allocator = &default_allocator;
     
     void operator+=(char c);
     void operator+=(const char *s);
@@ -2402,7 +2402,7 @@ struct GeneralStack{
 
 inline GeneralStack getGeneralStack(u64 s){
     GeneralStack gs;
-    gs.arena = getMemoryPool(s);
+    gs.arena = get_memory_pool(s);
     gs.half_size = 0;
     return gs;
 }
@@ -2522,7 +2522,7 @@ inline void catalog_add(const char *filename, void *info, void (*callback)(void 
 };
 inline void catalog_update(){
     for(int i=0; i<catalogs.size; i++){
-        OsTime last_modification = fileModificationDate(catalogs[i].filename);
+        OsTime last_modification = file_modification_date(catalogs[i].filename);
         if(last_modification > catalogs[i].last_modification){
             catalogs[i].last_modification = last_modification;
             catalogs[i].callback(catalogs[i].info);
