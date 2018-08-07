@@ -86,9 +86,8 @@ struct RgbaColor {
     unsigned char r, g, b, a;
 };
 
-#if ENGINE_ENABLE_VEC2
-// Vectors of dimension 2
-#if ENGINE_ENABLE_ANGLE
+#if !BASECODE_DISABLE_VEC2
+#if !BASECODE_DISABLE_ANGLE
 struct Angle;
 #endif
 
@@ -233,15 +232,14 @@ inline Vec2 ceil(Vec2 v){
 
 #endif
 
-#if ENGINE_ENABLE_ANGLE
-// Angles
+#if !BASECODE_DISABLE_ANGLE
 struct Angle{
     float c, s;
     // arithmetic operators with Vec2
     inline Angle operator+(const Angle& b) const { return {c*b.c-s*b.s, c*b.s+s*b.c}; }
     inline Angle operator-(const Angle& b) const { return {c*b.c+s*b.s, -c*b.s+s*b.c}; }
     
-#if ENGINE_ENABLE_VEC2
+#if !BASECODE_DISABLE_VEC2
     inline Vec2 operator*(const float& a) const { return {a*c, a*s}; }
 #endif
     
@@ -289,7 +287,7 @@ inline bool isAngleBetween(Angle ro, float a, float b){
 
 extern const Angle zeroAngle;
 
-#if ENGINE_ENABLE_VEC2
+#if !BASECODE_DISABLE_VEC2
 
 inline Angle::operator Vec2(){ return Vec2(c, s); }
 
@@ -342,9 +340,7 @@ inline float dot(Angle a, Vec2 v){
 #endif
 
 
-#if ENGINE_ENABLE_VEC3
-
-/* Vectors of dimension 3 */
+#if !BASECODE_DISABLE_VEC3
 union Vec3;
 union Vec3i;
 union Vec3 {
@@ -445,7 +441,7 @@ inline Vec3 lerp(f32 t, Vec3 u, Vec3 v){
     return u*(1.f-t)+v*t;
 }
 
-#if ENGINE_ENABLE_ANGLE
+#if !BASECODE_DISABLE_ANGLE
 
 inline Vec3 rotate(Vec3 u, float c, float s){
     return {c*u.x-s*u.y, s*u.x+c*u.y, u.z};
@@ -482,24 +478,12 @@ inline Vec3 ceil(Vec3 v){
     return {ceilf(v.x), ceilf(v.y), ceilf(v.z)};
 }
 
-/*
- inline Vec3i floor(Vec3r v){
- return {floor(v.x), floor(v.y), floor(v.z)};
- }
- inline Vec3i round(Vec3r v){
- return {round(v.x), round(v.y), round(v.z)};
- }
- inline Vec3i ceil(Vec3r v){
- return {ceil(v.x), ceil(v.y), ceil(v.z)};
- }*/
-
 #endif
 
 #endif
 
 
-#if ENGINE_ENABLE_VEC4
-/* Vectors of dimension 4 */
+#if !BASECODE_DISABLE_VEC4
 union Vec4 {
     struct { f32 x, y, z, w; };
     f32 axis[4];
@@ -726,133 +710,8 @@ const Mat3 mat3_identity = {
     0.f, 0.f, 1.f
 };
 
-/* 3x3 matrices of fractions */
-/*
- struct Mat3r{
- Fraction values[3][3];
- 
- inline Mat3r operator+(const Mat3r& m) const {
- return {
- values[0][0]+m.values[0][0], values[1][0]+m.values[1][0], values[2][0]+m.values[2][0],
- values[0][1]+m.values[0][1], values[1][1]+m.values[1][1], values[2][1]+m.values[2][1],
- values[0][2]+m.values[0][2], values[1][2]+m.values[1][2], values[2][2]+m.values[2][2]
- };
- }
- inline Mat3r operator-(const Mat3r& m) const {
- return {
- values[0][0]-m.values[0][0], values[1][0]-m.values[1][0], values[2][0]-m.values[2][0],
- values[0][1]-m.values[0][1], values[1][1]-m.values[1][1], values[2][1]-m.values[2][1],
- values[0][2]-m.values[0][2], values[1][2]-m.values[1][2], values[2][2]-m.values[2][2]
- };
- }
- inline Mat3r operator*(const Mat3r& m) const {
- return {
- values[0][0]*m.values[0][0]+values[1][0]*m.values[0][1]+values[2][0]*m.values[0][2],
- values[0][0]*m.values[1][0]+values[1][0]*m.values[1][1]+values[2][0]*m.values[1][2],
- values[0][0]*m.values[2][0]+values[1][0]*m.values[2][1]+values[2][0]*m.values[2][2],
- 
- values[0][1]*m.values[0][0]+values[1][1]*m.values[0][1]+values[2][1]*m.values[0][2],
- values[0][1]*m.values[1][0]+values[1][1]*m.values[1][1]+values[2][1]*m.values[1][2],
- values[0][1]*m.values[2][0]+values[1][1]*m.values[2][1]+values[2][1]*m.values[2][2],
- 
- values[0][2]*m.values[0][0]+values[1][2]*m.values[0][1]+values[2][2]*m.values[0][2],
- values[0][2]*m.values[1][0]+values[1][2]*m.values[1][1]+values[2][2]*m.values[1][2],
- values[0][2]*m.values[2][0]+values[1][2]*m.values[2][1]+values[2][2]*m.values[2][2],
- };
- }
- 
- inline Mat3r& operator+=(const Mat3r& m) {
- *this = *this+m;
- return *this;
- }
- inline Mat3r& operator-=(const Mat3r& m) {
- *this = *this-m;
- return *this;
- }
- inline Mat3r& operator*=(const Mat3r& m) {
- *this = *this*m;
- return *this;
- }
- 
- inline bool operator==(const Mat3r& m) {
- return
- values[0][0] == m.values[0][0] &&
- values[0][1] == m.values[0][1] &&
- values[0][2] == m.values[0][2] &&
- values[1][0] == m.values[1][0] &&
- values[1][1] == m.values[1][1] &&
- values[1][2] == m.values[1][2] &&
- values[2][0] == m.values[2][0] &&
- values[2][1] == m.values[2][1] &&
- values[2][2] == m.values[2][2];
- }
- inline bool operator!=(const Mat3r& m) {
- return
- values[0][0] != m.values[0][0] ||
- values[0][1] != m.values[0][1] ||
- values[0][2] != m.values[0][2] ||
- values[1][0] != m.values[1][0] ||
- values[1][1] != m.values[1][1] ||
- values[1][2] != m.values[1][2] ||
- values[2][0] != m.values[2][0] ||
- values[2][1] != m.values[2][1] ||
- values[2][2] != m.values[2][2];
- }
- 
- inline Mat3r(Fraction b00, Fraction b01, Fraction b02, Fraction b10, Fraction b11, Fraction b12, Fraction b20, Fraction b21, Fraction b22) : values{{b00, b10, b20}, {b01, b11, b21}, {b02, b12, b22}} { };
- inline Mat3r() : values{{Fraction(0, 1), Fraction(0, 1), Fraction(0, 1)}, {Fraction(0, 1), Fraction(0, 1), Fraction(0, 1)}, {Fraction(0, 1), Fraction(0, 1), Fraction(0, 1)}} { }
- };
- inline Vec3r operator*(const Mat3r& m, const Vec3r& v) {
- return {
- m.values[0][0]*v.x+m.values[1][0]*v.y+m.values[2][0]*v.z,
- m.values[0][1]*v.x+m.values[1][1]*v.y+m.values[2][1]*v.z,
- m.values[0][2]*v.x+m.values[1][2]*v.y+m.values[2][2]*v.z
- };
- }
- inline Vec3r operator*(const Vec3r& v, const Mat3r& m) {
- return {
- m.values[0][0]*v.x+m.values[0][1]*v.y+m.values[0][2]*v.z,
- m.values[1][0]*v.x+m.values[1][1]*v.y+m.values[1][2]*v.z,
- m.values[2][0]*v.x+m.values[2][1]*v.y+m.values[2][2]*v.z
- };
- }
- inline Fraction det(const Mat3r M){
- return M.values[0][0]*M.values[1][1]*M.values[2][2] +
- M.values[0][1]*M.values[1][2]*M.values[2][0] +
- M.values[0][2]*M.values[1][0]*M.values[2][1] -
- M.values[0][2]*M.values[1][1]*M.values[2][0] -
- M.values[0][1]*M.values[1][0]*M.values[2][2] -
- M.values[0][0]*M.values[1][2]*M.values[2][1];
- }
- inline Mat3r inv(const Mat3r& M){
- Mat3r I;
- Fraction det = M.values[0][0]*M.values[1][1]*M.values[2][2] +
- M.values[0][1]*M.values[1][2]*M.values[2][0] +
- M.values[0][2]*M.values[1][0]*M.values[2][1] -
- M.values[0][2]*M.values[1][1]*M.values[2][0] -
- M.values[0][1]*M.values[1][0]*M.values[2][2] -
- M.values[0][0]*M.values[1][2]*M.values[2][1];
- 
- I.values[0][0] = (M.values[1][1] * M.values[2][2] - M.values[2][1] * M.values[1][2]) / det;
- I.values[0][1] = (M.values[0][2] * M.values[2][1] - M.values[0][1] * M.values[2][2]) / det;
- I.values[0][2] = (M.values[0][1] * M.values[1][2] - M.values[0][2] * M.values[1][1]) / det;
- I.values[1][0] = (M.values[1][2] * M.values[2][0] - M.values[1][0] * M.values[2][2]) / det;
- I.values[1][1] = (M.values[0][0] * M.values[2][2] - M.values[0][2] * M.values[2][0]) / det;
- I.values[1][2] = (M.values[1][0] * M.values[0][2] - M.values[0][0] * M.values[1][2]) / det;
- I.values[2][0] = (M.values[1][0] * M.values[2][1] - M.values[2][0] * M.values[1][1]) / det;
- I.values[2][1] = (M.values[2][0] * M.values[0][1] - M.values[0][0] * M.values[2][1]) / det;
- I.values[2][2] = (M.values[0][0] * M.values[1][1] - M.values[1][0] * M.values[0][1]) / det;
- 
- return I;
- }
- 
- const Mat3r mat3r_identity = {
- 1.f, 0.f, 0.f,
- 0.f, 1.f, 0.f,
- 0.f, 0.f, 1.f
- };*/
 
-#if ENGINE_ENABLE_MAT4
+#if !BASECODE_DISABLE_MAT4
 /* 4x4 matrices */
 struct Mat4{
     f32 values[4][4];
@@ -1101,7 +960,7 @@ inline Vec3 rotate_vector(Vec3 v, Quaternion q){
     return 2.f*dot(u, v)*u + (q.s*q.s-dot(u, u))*v + 2.f*q.s*cross(u, v);
 }
 
-#if ENGINE_ENABLE_MAT3
+#if !BASECODE_DISABLE_MAT3
 inline Mat3 quaternion_to_mat3(Quaternion q){
     float is = q.i*q.s;
     float ii = q.i*q.i;
@@ -1163,7 +1022,7 @@ inline Quaternion mat3_to_quaternion(Mat3 m){
     return q;
 }
 #endif
-#if ENGINE_ENABLE_MAT4
+#if !BASECODE_DISABLE_MAT4
 inline Mat4 quaternion_to_mat4(Quaternion q){
     float is = q.i*q.s;
     float ii = q.i*q.i;
@@ -1211,7 +1070,7 @@ inline Quaternion slerp(float t, Quaternion q1, Quaternion q2){
 #define M_5_PI_4 3.92699081699
 #define M_7_PI_4 5.49778714378
 
-#ifdef ENGINE_ENABLE_ARRAYS
+#if !BASECODE_DISABLE_ARRAYS
 
 #include <string.h>
 
@@ -1247,7 +1106,7 @@ template <typename T> struct Array{
             size += plus;
         }
     }
-    void copyTo(Array<T> &a){
+    void copy_to(Array<T> &a){
         a.size = size;
         if(size > 0){
             assert(size*sizeof(T) < 5000000); // To detect errors (we may need to increase the number)
@@ -1300,7 +1159,7 @@ template <typename T> struct Array{
             data = (T*)allocator->allocate(allocator, reserved*sizeof(T));
         }
     }
-    void reserveToFitSize(){
+    void reserve_to_fit_size(){
         reserved = size;
         data = (T*)allocator->allocate(allocator, reserved*sizeof(T));
     }
@@ -1336,7 +1195,7 @@ template <typename T> struct Array{
 //template <typename T> void writeArray(Array<T> &a, FILE *fp);
 //template <typename T> void writeArray(Array<T> *a, FILE *fp);
 //template <typename T> void free(Array<T> &a);
-template <typename T> inline void readArray(Array<T> &a, FILE *fp){
+template <typename T> inline void read_array(Array<T> &a, FILE *fp){
     fread(&a.size, sizeof(u32), 1, fp);
     a.reserved = a.size;
     if(a.size > 0){
@@ -1344,7 +1203,7 @@ template <typename T> inline void readArray(Array<T> &a, FILE *fp){
         fread(a.data, sizeof(T), a.size, fp);
     }
 }
-template <typename T> inline void readArray(Array<T> *a, FILE *fp){
+template <typename T> inline void read_array(Array<T> *a, FILE *fp){
     fread(&a->size, sizeof(u32), 1, fp);
     a->reserved = a->size;
     if(a->size > 0){
@@ -1352,11 +1211,11 @@ template <typename T> inline void readArray(Array<T> *a, FILE *fp){
         fread(a->data, sizeof(T), a->size, fp);
     }
 }
-template <typename T> inline void writeArray(Array<T> &a, FILE *fp){
+template <typename T> inline void write_array(Array<T> &a, FILE *fp){
     fwrite(&a.size, sizeof(u32), 1, fp);
     fwrite(a.data, sizeof(T), a.size, fp);
 }
-template <typename T> inline void writeArray(Array<T> *a, FILE *fp){
+template <typename T> inline void write_array(Array<T> *a, FILE *fp){
     fwrite(&a->size, sizeof(u32), 1, fp);
     fwrite(a->data, sizeof(T), a->size, fp);
 }
@@ -1418,11 +1277,11 @@ template <typename T, u32 aS> struct StaticArray{
         size = s;
     }
 };
-template <typename T, u32 aS> inline void readArray(StaticArray<T, aS> *a, FILE *fp){
+template <typename T, u32 aS> inline void read_array(StaticArray<T, aS> *a, FILE *fp){
     fread(&a->size, sizeof(u32), 1, fp);
     fread(a->data, sizeof(T), a->size, fp);
 }
-template <typename T, u32 aS> inline void writeArray(StaticArray<T, aS> *a, FILE *fp){
+template <typename T, u32 aS> inline void write_array(StaticArray<T, aS> *a, FILE *fp){
     fwrite(&a->size, sizeof(u32), 1, fp);
     fwrite(a->data, sizeof(T), a->size, fp);
 }
@@ -1430,7 +1289,7 @@ template <typename T, u32 aS> inline void free(StaticArray<T, aS> &a){
     a.size = 0;
 }
 
-#if ENGINE_ENABLE_S_ARRAYS
+#if !BASECODE_DISABLE_S_ARRAYS
 
 // 1 bit arrays
 
@@ -1492,13 +1351,13 @@ struct Array_bool{
         data = (uint8 *)allocator->allocate(allocator, byteSize*sizeof(uint8));
     }
 };
-inline void readArray(Array_bool *a, FILE *fp){
+inline void read_array(Array_bool *a, FILE *fp){
     fread(&a->size, sizeof(u32), 1, fp);
     a->byteSize = (a->size+7)/8;
     a->data = (uint8 *)a->allocator->allocate(a->allocator, a->byteSize*sizeof(uint8));
     fread(a->data, sizeof(uint8), a->byteSize, fp);
 }
-inline void writeArray(Array_bool *a, FILE *fp){
+inline void write_array(Array_bool *a, FILE *fp){
     fwrite(&a->size, sizeof(u32), 1, fp);
     fwrite(a->data, sizeof(uint8), a->byteSize, fp);
 }
@@ -1556,13 +1415,13 @@ struct Array_uint2{
         data = (uint8 *)malloc(byteSize*sizeof(uint8));
     }
 };
-inline void readArray(Array_uint2 *a, FILE *fp){
+inline void read_array(Array_uint2 *a, FILE *fp){
     fread(&a->size, sizeof(u32), 1, fp);
     a->byteSize = (a->size+3)/4;
     a->data = (uint8 *)malloc(a->byteSize*sizeof(uint8));
     fread(a->data, sizeof(uint8), a->byteSize, fp);
 }
-inline void writeArray(Array_uint2 *a, FILE *fp){
+inline void write_array(Array_uint2 *a, FILE *fp){
     fwrite(&a->size, sizeof(u32), 1, fp);
     fwrite(a->data, sizeof(uint8), a->byteSize, fp);
 }
@@ -1617,13 +1476,13 @@ struct Array_uint4{
         data = (uint8 *)allocator->allocate(allocator, byteSize*sizeof(uint8));
     }
 };
-inline void readArray(Array_uint4 *a, FILE *fp){
+inline void read_array(Array_uint4 *a, FILE *fp){
     fread(&a->size, sizeof(u32), 1, fp);
     a->byteSize = (a->size+1)/2;
     a->data = (uint8 *)malloc(a->byteSize*sizeof(uint8));
     fread(a->data, sizeof(uint8), a->byteSize, fp);
 }
-inline void writeArray(Array_uint4 *a, FILE *fp){
+inline void write_array(Array_uint4 *a, FILE *fp){
     fwrite(&a->size, sizeof(u32), 1, fp);
     fwrite(a->data, sizeof(uint8), a->byteSize, fp);
 }
@@ -1697,14 +1556,14 @@ template <u32 aS> struct StaticArray_bool{
         actualByteSize = (aS+7)/8;
     }
 };
-template <u32 aS> inline void readArray(StaticArray_bool<aS> *a, FILE *fp){
+template <u32 aS> inline void read_array(StaticArray_bool<aS> *a, FILE *fp){
     fread(&a->size, sizeof(u32), 1, fp);
     a->byteSize = (a->size+7)/8;
     a->actualByteSize = (aS+7)/8;
     assert(a->byteSize <= a->actualByteSize);
     fread(a->data, sizeof(uint8), a->byteSize, fp);
 }
-template <u32 aS> inline void writeArray(StaticArray_bool<aS> *a, FILE *fp){
+template <u32 aS> inline void write_array(StaticArray_bool<aS> *a, FILE *fp){
     fwrite(&a->size, sizeof(u32), 1, fp);
     fwrite(a->data, sizeof(uint8), a->byteSize, fp);
 }
@@ -1761,14 +1620,14 @@ template <u32 aS> struct StaticArray_uint2{
         actualByteSize = (aS+3)/4;
     }
 };
-template <u32 aS> inline void readArray(StaticArray_uint2<aS> *a, FILE *fp){
+template <u32 aS> inline void read_array(StaticArray_uint2<aS> *a, FILE *fp){
     fread(&a->size, sizeof(u32), 1, fp);
     a->byteSize = (a->size+3)/4;
     a->actualByteSize = (aS+3)/4;
     assert(a->byteSize > a->actualByteSize);
     fread(a->data, sizeof(uint8), a->byteSize, fp);
 }
-template <u32 aS> inline void writeArray(StaticArray_uint2<aS> *a, FILE *fp){
+template <u32 aS> inline void write_array(StaticArray_uint2<aS> *a, FILE *fp){
     fwrite(&a->size, sizeof(u32), 1, fp);
     fwrite(a->data, sizeof(uint8), a->byteSize, fp);
 }
@@ -1818,14 +1677,14 @@ template <u32 aS> struct StaticArray_uint4{
         actualByteSize = (aS+1)/2;
     }
 };
-template <u32 aS> inline void readArray(StaticArray_uint4<aS> *a, FILE *fp){
+template <u32 aS> inline void read_array(StaticArray_uint4<aS> *a, FILE *fp){
     fread(&a->size, sizeof(u32), 1, fp);
     a->byteSize = (a->size+1)/2;
     a->actualByteSize = (aS+1)/2;
     assert(a->byteSize <= a->actualByteSize);
     fread(a->data, sizeof(uint8), a->byteSize, fp);
 }
-template <u32 aS> inline void writeArray(StaticArray_uint4<aS> *a, FILE *fp){
+template <u32 aS> inline void write_array(StaticArray_uint4<aS> *a, FILE *fp){
     fwrite(&a->size, sizeof(u32), 1, fp);
     fwrite(a->data, sizeof(uint8), a->byteSize, fp);
 }
@@ -1838,7 +1697,7 @@ template <u32 aS> inline void free(StaticArray_uint4<aS> &a){
 
 #endif
 
-#if ENGINE_ENABLE_MATRICES
+#if !BASECODE_DISABLE_MATRICES
 
 template <typename T> struct Matrix{
     u32 cols, rows;
@@ -1893,13 +1752,13 @@ template <typename T> struct Matrix{
         array = Array<T>(al);
     }
 };
-template <typename T> inline void readMatrix(Matrix<T> *a, FILE *fp){
+template <typename T> inline void read_matrix(Matrix<T> *a, FILE *fp){
     fread(&a->rows, sizeof(u32), 1, fp);
     fread(&a->cols, sizeof(u32), 1, fp);
     a->array = Array<T>(a->rows*a->cols);
     fread(a->array.data, sizeof(T), a->array.size, fp);
 }
-template <typename T> inline void writeMatrix(Matrix<T> *a, FILE *fp){
+template <typename T> inline void write_matrix(Matrix<T> *a, FILE *fp){
     fwrite(&a->rows, sizeof(u32), 1, fp);
     fwrite(&a->cols, sizeof(u32), 1, fp);
     fwrite(a->array.data, sizeof(T), a->array.size, fp);
@@ -1933,12 +1792,12 @@ template <typename T, u32 aR, u32 aC> struct StaticMatrix{
         array = StaticArray<T, aR*aC>(c*r);
     }
 };
-template <typename T, u32 aR, u32 aC> inline void readMatrix(StaticMatrix<T, aR, aC> *a, FILE *fp){
+template <typename T, u32 aR, u32 aC> inline void read_matrix(StaticMatrix<T, aR, aC> *a, FILE *fp){
     fread(&a->rows, sizeof(u32), 1, fp);
     fread(&a->cols, sizeof(u32), 1, fp);
     fread(a->array.data, sizeof(T), a->array.size, fp);
 }
-template <typename T, u32 aR, u32 aC> inline void writeMatrix(StaticMatrix<T, aR, aC> *a, FILE *fp){
+template <typename T, u32 aR, u32 aC> inline void write_matrix(StaticMatrix<T, aR, aC> *a, FILE *fp){
     fwrite(&a->rows, sizeof(u32), 1, fp);
     fwrite(&a->cols, sizeof(u32), 1, fp);
     fwrite(a->array.data, sizeof(T), a->array.size, fp);
@@ -1960,11 +1819,11 @@ template <typename T, u32 size_0, u32 size_1, u32 size_2> struct StaticArray3{
     
     StaticArray3(u32 s0, u32 s1, u32 s2) : size{s0, s1, s2} { }
 };
-template <typename T, u32 size_0, u32 size_1, u32 size_2> inline void readArray(StaticArray3<T, size_0, size_1, size_2> *a, FILE *fp){
+template <typename T, u32 size_0, u32 size_1, u32 size_2> inline void read_array(StaticArray3<T, size_0, size_1, size_2> *a, FILE *fp){
     fread(a->size, sizeof(u32), 3, fp);
     fread(a->array.data, sizeof(T), size_0*size_1*size_2, fp);
 }
-template <typename T, u32 size_0, u32 size_1, u32 size_2> inline void writeMatrix(StaticArray3<T, size_0, size_1, size_2> *a, FILE *fp){
+template <typename T, u32 size_0, u32 size_1, u32 size_2> inline void write_array(StaticArray3<T, size_0, size_1, size_2> *a, FILE *fp){
     fwrite(a->size, sizeof(u32), 3, fp);
     fwrite(a->array.data, sizeof(T), size_0*size_1*size_2, fp);
 }
@@ -2008,269 +1867,9 @@ template <typename T, u32 size_0, u32 size_1, u32 size_2> inline u32 array_linea
     return a.size[0]*a.size[1]*a.size[2];
 }
 
-#if ENGINE_ENABLE_S_MATRICES
-
-// 1 bit matrix
-
-struct Matrix_bool{
-    u32 rows, cols;
-    Array_bool array;
-    
-    uint8 at(u32 i, u32 j){
-        return array[i*cols+j];
-    }
-    void set(u32 i, u32 j, uint8 value){
-        array.set(i*cols+j, value);
-    }
-    
-    Matrix_bool(){
-        cols = 0;
-        rows = 0;
-        array = Array_bool();
-    }
-    
-    Matrix_bool(u32 c, u32 r){
-        cols = c;
-        rows = r;
-        array = Array_bool(c*r);
-    }
-};
-inline void readMatrix(Matrix_bool *a, FILE *fp){
-    fread(&a->cols, sizeof(u32), 1, fp);
-    fread(&a->rows, sizeof(u32), 1, fp);
-    a->array.size = a->cols*a->rows;
-    a->array.byteSize = (a->array.size+7)/8;
-    a->array.data = (uint8 *)malloc(a->array.byteSize*sizeof(uint8));
-    fread(a->array.data, sizeof(uint8), a->array.byteSize, fp);
-}
-inline void writeMatrix(Matrix_bool *a, FILE *fp){
-    fwrite(&a->cols, sizeof(u32), 1, fp);
-    fwrite(&a->rows, sizeof(u32), 1, fp);
-    fwrite(a->array.data, sizeof(uint8), a->array.byteSize, fp);
-}
-inline void free(Matrix_bool &a){
-    free(a.array);
-    a.rows = 0;
-    a.cols = 0;
-}
-
-
-
-struct Matrix_uint4{
-    u32 rows, cols;
-    Array_uint4 array;
-    
-    uint8 at(u32 i, u32 j){
-        return array[i*cols+j];
-    }
-    void set(u32 i, u32 j, uint8 value){
-        array.set(i*cols+j, value);
-    }
-    
-    Matrix_uint4(){
-        rows = 0;
-        cols = 0;
-        array = Array_uint4();
-    }
-    
-    Matrix_uint4(u32 d){
-        rows = d;
-        cols = d;
-        array = Array_uint4(d*d);
-    }
-    Matrix_uint4(u32 r, u32 c){
-        rows = r;
-        cols = c;
-        array = Array_uint4(r*c);
-    }
-    
-    inline Matrix_uint4 copy(){
-        Matrix_uint4 a;
-        a.rows = rows;
-        a.cols = cols;
-        a.array.size = array.size;
-        a.array.byteSize = array.byteSize;
-        a.array.data = (uint8 *)malloc(a.array.byteSize*sizeof(uint8));
-        memcpy(a.array.data, array.data, array.byteSize*sizeof(uint8));
-        return a;
-    }
-};
-inline void readMatrix(Matrix_uint4 *a, FILE *fp){
-    fread(&a->rows, sizeof(u32), 1, fp);
-    fread(&a->cols, sizeof(u32), 1, fp);
-    a->array.size = a->cols*a->rows;
-    a->array.byteSize = (a->array.size+1)/2;
-    a->array.data = (uint8 *)malloc(a->array.byteSize*sizeof(uint8));
-    fread(a->array.data, sizeof(uint8), a->array.byteSize, fp);
-}
-inline void writeMatrix(Matrix_uint4 *a, FILE *fp){
-    fwrite(&a->rows, sizeof(u32), 1, fp);
-    fwrite(&a->cols, sizeof(u32), 1, fp);
-    fwrite(a->array.data, sizeof(uint8), a->array.byteSize, fp);
-}
-inline void free(Matrix_uint4 &a){
-    free(a.array);
-    a.rows = 0;
-    a.cols = 0;
-}
-
-// Static Matrices
-
-// 1 bit matrix
-
-template <u32 aR, u32 aC> struct StaticMatrix_bool{
-    u32 rows, cols;
-    StaticArray_bool<aC*aR> array;
-    
-    uint8 at(u32 i, u32 j){
-        return array[i*cols+j];
-    }
-    void set(u32 i, u32 j, uint8 value){
-        array.set(i*cols+j, value);
-    }
-    
-    StaticMatrix_bool(){
-        cols = 0;
-        rows = 0;
-        array = StaticArray_bool<aC*aR>();
-    }
-    
-    StaticMatrix_bool(u32 r, u32 c){
-        cols = c;
-        rows = r;
-        array = StaticArray_bool<aC*aR>(c*r);
-    }
-};
-template <u32 aR, u32 aC> inline void readMatrix(StaticMatrix_bool<aR, aC> *a, FILE *fp){
-    fread(&a->cols, sizeof(u32), 1, fp);
-    fread(&a->rows, sizeof(u32), 1, fp);
-    a->array.size = a->cols*a->rows;
-    a->array.byteSize = (a->array.size+7)/8;
-    a->array.actualByteSize = ((aC*aR)+7)/8;
-    assert(a->byteSize <= a->actualByteSize);
-    fread(a->array.data, sizeof(uint8), a->array.byteSize, fp);
-}
-template <u32 aR, u32 aC> inline void writeMatrix(StaticMatrix_bool<aR, aC> *a, FILE *fp){
-    fwrite(&a->cols, sizeof(u32), 1, fp);
-    fwrite(&a->rows, sizeof(u32), 1, fp);
-    fwrite(a->array.data, sizeof(uint8), a->array.byteSize, fp);
-}
-template <u32 aR, u32 aC> inline void free(StaticMatrix_bool<aR, aC> &a){
-    free(a.array);
-    a.rows = 0;
-    a.cols = 0;
-}
-
-// 2 bit matrix
-template <u32 aR, u32 aC> struct StaticMatrix_uint2{
-    u32 rows, cols;
-    StaticArray_uint2<aC*aR> array;
-    
-    uint8 at(u32 i, u32 j){
-        return array[i*cols+j];
-    }
-    void set(u32 i, u32 j, uint8 value){
-        array.set(i*cols+j, value);
-    }
-    
-    StaticMatrix_uint2(){
-        cols = 0;
-        rows = 0;
-        array = StaticArray_uint2<aC*aR>();
-    }
-    
-    StaticMatrix_uint2(u32 r, u32 c){
-        cols = c;
-        rows = r;
-        array = StaticArray_uint2<aC*aR>(c*r);
-    }
-};
-template <u32 aR, u32 aC> inline void readMatrix(StaticMatrix_uint2<aR, aC> *a, FILE *fp){
-    fread(&a->cols, sizeof(u32), 1, fp);
-    fread(&a->rows, sizeof(u32), 1, fp);
-    a->array.size = a->cols*a->rows;
-    a->array.byteSize = (a->array.size+3)/4;
-    a->array.actualByteSize = ((aC*aR)+3)/4;
-    assert(a->array.byteSize <= a->array.actualByteSize);
-    fread(a->array.data, sizeof(uint8), a->array.byteSize, fp);
-}
-template <u32 aR, u32 aC> inline void writeMatrix(StaticMatrix_uint2<aR, aC> *a, FILE *fp){
-    fwrite(&a->cols, sizeof(u32), 1, fp);
-    fwrite(&a->rows, sizeof(u32), 1, fp);
-    fwrite(a->array.data, sizeof(uint8), a->array.byteSize, fp);
-}
-template <u32 aR, u32 aC> inline void free(StaticMatrix_uint2<aR, aC> &a){
-    free(a.array);
-    a.rows = 0;
-    a.cols = 0;
-}
-
-
-
-template <u32 aR, u32 aC> struct StaticMatrix_uint4{
-    u32 rows, cols;
-    StaticArray_uint4<aC*aR> array;
-    
-    uint8 at(u32 i, u32 j){
-        return array[i*cols+j];
-    }
-    void set(u32 i, u32 j, uint8 value){
-        array.set(i*cols+j, value);
-    }
-    
-    StaticMatrix_uint4(){
-        rows = 0;
-        cols = 0;
-        array = StaticArray_uint4<aC*aR>();
-    }
-    
-    StaticMatrix_uint4(u32 d){
-        rows = d;
-        cols = d;
-        array = StaticArray_uint4<aC*aR>(d*d);
-    }
-    StaticMatrix_uint4(u32 r, u32 c){
-        rows = r;
-        cols = c;
-        array = StaticArray_uint4<aC*aR>(r*c);
-    }
-    
-    inline StaticMatrix_uint4 copy(){
-        StaticMatrix_uint4<aR, aC> a;
-        a.rows = rows;
-        a.cols = cols;
-        a.array.size = array.size;
-        a.array.byteSize = array.byteSize;
-        a.array.actualByteSize = array.actualByteSize;
-        memcpy(a.array.data, array.data, array.byteSize*sizeof(uint8));
-        return a;
-    }
-};
-template <u32 aR, u32 aC> inline void readMatrix(StaticMatrix_uint4<aR, aC> *a, FILE *fp){
-    fread(&a->rows, sizeof(u32), 1, fp);
-    fread(&a->cols, sizeof(u32), 1, fp);
-    a->array.size = a->cols*a->rows;
-    a->array.byteSize = (a->array.size+1)/2;
-    a->array.actualByteSize = ((aC*aR)+1)/2;
-    assert(a->array.byteSize <= a->array.actualByteSize);
-    fread(a->array.data, sizeof(uint8), a->array.byteSize, fp);
-}
-template <u32 aR, u32 aC> inline void writeMatrix(StaticMatrix_uint4<aR, aC> *a, FILE *fp){
-    fwrite(&a->rows, sizeof(u32), 1, fp);
-    fwrite(&a->cols, sizeof(u32), 1, fp);
-    fwrite(a->array.data, sizeof(uint8), a->array.byteSize, fp);
-}
-template <u32 aR, u32 aC> inline void free(StaticMatrix_uint4<aR, aC> &a){
-    free(a.array);
-    a.rows = 0;
-    a.cols = 0;
-}
-
 #endif
 
-#endif
-
-#if ENGINE_ENABLE_STRINGS
+#if !BASECODE_DISABLE_STRINGS
 
 struct String{
     char *text;
@@ -2304,7 +1903,7 @@ void free(String &s);
 
 #endif
 
-#if ENGINE_ENABLE_STACKS
+#if !BASECODE_DISABLE_STACKS
 
 struct GeneralStack{
     MemoryPool arena;

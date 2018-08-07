@@ -12,6 +12,9 @@ enum {
     KEYS_ESC   =  5,
     KEYS_SHIFT =  6,
     KEYS_ENTER =  7,
+#if BASECODE_NO_LETTER_KEYS
+#define KEYS_NUM 8
+#else
     KEYS_A     =  8,
     KEYS_B     =  9,
     KEYS_C     = 10,
@@ -39,6 +42,7 @@ enum {
     KEYS_Y     = 32,
     KEYS_Z     = 33,
 #define KEYS_NUM 34
+#endif
 };
 
 #define MAX_EVENTS_PER_LOOP  256

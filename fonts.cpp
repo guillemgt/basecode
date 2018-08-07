@@ -65,6 +65,10 @@ int load_font(const char *path){
     GLuint ftex;
     
     FILE *f = fopen(path, "rb");
+    if(f == NULL){
+        printf("Couldn't open font '%s'\n", path);
+        return 0;
+    }
     fseek(f, 0, SEEK_END);
     long fsize = ftell(f);
     fseek(f, 0, SEEK_SET);  //same as rewind(f);
@@ -332,7 +336,7 @@ int load_font(const char *path){
 }
 
 
-int textVertNum(char *printLog){
+int text_vert_num(char *printLog){
     // Render log
     // Count the total squares
     int logLength;
@@ -349,7 +353,7 @@ int textVertNum(char *printLog){
     }
     return squares;
 }
-int textVertNum(String &s){
+int text_vert_num(String &s){
     // Render log
     // Count the total squares
     

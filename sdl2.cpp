@@ -38,7 +38,7 @@ bool InitSDL(WindowThingy **window, SDL_GLContext *context){
         return false;
     }
     *window = SDL_SetVideoMode(0, 0, 24, SDL_OPENGL | SDL_RESIZABLE);
-    windowSize = Vec2i((*window)->w, (*window)->h);
+    window_size = Vec2i((*window)->w, (*window)->h);
     if ( !(*window) ) {
         printf("Unable to set video mode: %s\n", SDL_GetError());
         return 1;
@@ -81,17 +81,22 @@ void quitSDL(SDL_Window *window, SDL_GLContext context){
     SDL_Quit();
 }
 
-const int wantedKeys[] = {SDL_SCANCODE_UP, SDL_SCANCODE_RIGHT, SDL_SCANCODE_DOWN, SDL_SCANCODE_LEFT, SDL_SCANCODE_SPACE, SDL_SCANCODE_ESCAPE, SDL_SCANCODE_LSHIFT, SDL_SCANCODE_EXECUTE, SDL_SCANCODE_A, SDL_SCANCODE_B, SDL_SCANCODE_C, SDL_SCANCODE_D, SDL_SCANCODE_E, SDL_SCANCODE_F, SDL_SCANCODE_G, SDL_SCANCODE_H, SDL_SCANCODE_I, SDL_SCANCODE_J, SDL_SCANCODE_K, SDL_SCANCODE_L, SDL_SCANCODE_M, SDL_SCANCODE_N, SDL_SCANCODE_O, SDL_SCANCODE_P, SDL_SCANCODE_Q, SDL_SCANCODE_R, SDL_SCANCODE_S, SDL_SCANCODE_T, SDL_SCANCODE_U, SDL_SCANCODE_V, SDL_SCANCODE_W, SDL_SCANCODE_X, SDL_SCANCODE_Y, SDL_SCANCODE_Z};
+#if OS != OS_WASM
+#define scancode(n) (SDL_SCANCODE_ ## n)
+#else
+#define scancode(n) SDL_SCANCODE_TO_KEYCODE(SDL_SCANCODE_ ## n)
+#endif
+
+#if OS != OS_WASM
+const int wantedKeys[] = {scancode(UP), scancode(RIGHT), scancode(DOWN), scancode(LEFT), scancode(SPACE), scancode(ESCAPE), scancode(LSHIFT), scancode(EXECUTE), scancode(A), scancode(B), scancode(C), scancode(D), scancode(E), scancode(F), scancode(G), scancode(H), scancode(I), scancode(J), scancode(K), scancode(L), scancode(M), scancode(N), scancode(O), scancode(P), scancode(Q), scancode(R), scancode(S), scancode(T), scancode(U), scancode(V), scancode(W), scancode(X), scancode(Y), scancode(Z)};
+#else
+const int wantedKeys[] = {scancode(UP), scancode(RIGHT), scancode(DOWN), scancode(LEFT), 32, scancode(ESCAPE), scancode(LSHIFT), scancode(EXECUTE), scancode(A), scancode(B), scancode(C), scancode(D), scancode(E), scancode(F), scancode(G), scancode(H), scancode(I), scancode(J), scancode(K), scancode(L), scancode(M), scancode(N), scancode(O), scancode(P), scancode(Q), scancode(R), scancode(S), scancode(T), scancode(U), scancode(V), scancode(W), scancode(X), scancode(Y), scancode(Z)};
+#endif
 bool keys[KEYS_NUM] = {false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false};
 StaticArray<Event, MAX_EVENTS_PER_LOOP> events = StaticArray<Event, MAX_EVENTS_PER_LOOP>();
 WindowThingy *window;
 
 inline void SDL_Loop(){
-#if OS != OS_WASM
-#define scancode(n) n
-#else
-#define scancode(n) SDL_SCANCODE_TO_KEYCODE(n)
-#endif
     
     const Uint8 *state = SDL_GetKeyboardState(NULL);
     for(int i=0; i<KEYS_NUM; i++){
@@ -176,7 +181,7 @@ inline void SDL_Loop(){
                 break;
 #if OS == OS_WASM
             case SDL_VIDEORESIZE:
-                windowSize = Vec2i(e.resize.w, e.resize.h);
+                window_size = Vec2i(e.resize.w, e.resize.h);
                 events.push({EVENT_RESIZE, EventData(e.resize.w, e.resize.h)});
                 break;
 #endif
@@ -200,7 +205,7 @@ inline void SDL_Loop(){
     }
 
 #if OS == OS_WASM
-    if(!game_logic(keys, events)){
+    if(!game_loop(keys, events)){
         emscripten_pause_main_loop();
     }
 #endif
@@ -236,7 +241,6 @@ int main(int argc, char ** argv){
     
     init_game();
     
-    
 #if OS != OS_WASM
     do{
         SDL_Loop();
@@ -252,7 +256,7 @@ int main(int argc, char ** argv){
 extern "C" {
     
     void jsResizeWindow(int x, int y){
-        windowSize = Vec2i(x, y);
+        window_size = Vec2i(x, y);
         change_window_size();
     }
     
