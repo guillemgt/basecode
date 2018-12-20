@@ -111,7 +111,7 @@ void cleanupUIThing(){
 void renderTagCount(Tag &t, Vec2i &count){
     if(t.shown){
         if(t.text.length > 0){
-            count.y += textVertNum(t.text);
+            count.y += text_vert_num(t.text);
         }
         if(t.type == BUTTON || t.type == TAB_TITLE || t.type == TEXTINPUT || t.type == SELECT || t.type == SELECT_DROPDOWN || t.type == CHECKBOX || t.type == DIV){
             count.x += 6;

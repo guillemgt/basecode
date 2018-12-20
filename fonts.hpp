@@ -19,16 +19,16 @@ void _screenLog(const char *ftext, ...);
 #define print(...)
 #endif
 
-typedef enum {
-    TEXT_ALIGN_TOP,
-    TEXT_ALIGN_BOTTOM,
-} TextAlignment;
+const u8 TEXT_ALIGN_BOTTOM = 0;
+const u8 TEXT_ALIGN_TOP    = 1;
+const u8 TEXT_ALIGN_LEFT   = 0;
+const u8 TEXT_ALIGN_RIGHT  = 2;
 
 void render_text(float x, float y, float size, char *printLog);
 unsigned int render_text(float x, float y, float z, uint8 quality, String &s, Vec3 *pos, RgbaColor *col, Vec2* coords, float font_size, float *width, float *height);
 unsigned int render_text(float x, float y, float z, uint8 quality, String &s, Vec3 *pos, RgbaColor *col, Vec2* coords, float font_size, float *width, float *height, RgbaColor color);
-u32 render_text(float x, float y, float z, u8 quality, String &s, Vertex_PTCa *vertices, float font_size, float *width, float *height, RgbaColor color, TextAlignment align);
-u32 render_text_monospace(float x, float y, float z, u8 quality, String &s, Vertex_PTCa *vertices, float font_size, float *width, float *height, RgbaColor color, TextAlignment align);
+u32 render_text(float x, float y, float z, u8 quality, String &s, Vertex_PTCa *vertices, float font_size, float *width, float *height, RgbaColor color, u8 align);
+u32 render_text_monospace(float x, float y, float z, u8 quality, String &s, Vertex_PTCa *vertices, float font_size, float *width, float *height, RgbaColor color, u8 align);
 float render_text_length(uint8 size, String &s);
 float render_text_length(uint8 size, String &s, int length);
 int text_vert_num(char *printLog);

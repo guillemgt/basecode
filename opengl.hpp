@@ -100,6 +100,10 @@ struct Vertex_PT {
     Vec3 p;
     Vec2 t;
 };
+struct Vertex_PN {
+    Vec3 p;
+    Vec3 n;
+};
 struct Vertex_PTa {
     Vec3 p;
     Vec3 t;

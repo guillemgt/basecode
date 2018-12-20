@@ -8,11 +8,16 @@
 
 #include "Include/stb_truetype.h"
 
-
+#if OS_IS_MOBILE
 #define TEX_SIZE  512
 #define TEX_SIZEf 512.f
-
 #define FONT_SIZE_IN_TEXTURE 64
+#else
+#define TEX_SIZE  1024
+#define TEX_SIZEf 1024.f
+#define FONT_SIZE_IN_TEXTURE 128
+#endif
+
 
 struct {
     GLuint id;
@@ -58,13 +63,18 @@ int cleanupFreetype(){
 
 
 int load_font(const char *path){
+    start_temp_alloc();
     stbtt_bakedchar cdata[96]; // ASCII 32..126 is 95 glyphs
     
-    unsigned char temp_bitmap[TEX_SIZE*TEX_SIZE];
+    u8 *temp_bitmap = (u8 *)temp_alloc(TEX_SIZE*TEX_SIZE*sizeof(u8));
     
     GLuint ftex;
     
     FILE *f = fopen(path, "rb");
+    if(f == NULL){
+        printf("Couldn't open font '%s'\n", path);
+        return 0;
+    }
     fseek(f, 0, SEEK_END);
     long fsize = ftell(f);
     fseek(f, 0, SEEK_SET);  //same as rewind(f);
@@ -79,10 +89,12 @@ int load_font(const char *path){
     glActiveTexture(GL_TEXTURE2);
     glGenTextures(1, &ftex);
     glBindTexture(GL_TEXTURE_2D, ftex);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_ALPHA, 512,512, 0, GL_ALPHA, GL_UNSIGNED_BYTE, temp_bitmap);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_ALPHA, TEX_SIZE, TEX_SIZE, 0, GL_ALPHA, GL_UNSIGNED_BYTE, temp_bitmap);
     // can free temp_bitmap at this point
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    
+    end_temp_alloc();
     
     glyphNum = 96;
     glyphs = (Glyph *)malloc(glyphNum*sizeof(Glyph));
@@ -332,7 +344,7 @@ int load_font(const char *path){
 }
 
 
-int textVertNum(char *printLog){
+int text_vert_num(char *printLog){
     // Render log
     // Count the total squares
     int logLength;
@@ -349,7 +361,7 @@ int textVertNum(char *printLog){
     }
     return squares;
 }
-int textVertNum(String &s){
+int text_vert_num(String &s){
     // Render log
     // Count the total squares
     
@@ -557,9 +569,9 @@ unsigned int render_text(float x, float y, float z, uint8 quality, String &s, Ve
     return k;
 }
 
-u32 render_text(float x, float y, float z, u8 quality, String &s, Vertex_PTCa *vertices, float font_size, float *width, float *height, RgbaColor color, TextAlignment align){
+u32 render_text(float x, float y, float z, u8 quality, String &s, Vertex_PTCa *vertices, float font_size, float *width, float *height, RgbaColor color, u8 align){
     Vertex_PTCa *o_vertices = vertices;
-    if(align == TEXT_ALIGN_TOP)
+    if(align & TEXT_ALIGN_TOP)
         y -= font_size;
     float x0 = x;
     float y0 = y;
@@ -578,11 +590,18 @@ u32 render_text(float x, float y, float z, u8 quality, String &s, Vertex_PTCa *v
     }
     
     y += -font_size;
+    Vertex_PTCa *last_line_vertices = vertices;
     for(int i=0; i<s.length; i++){
         char c = s.text[i];
         if(c == '\n'){
             if(x > maxX)
                 maxX = x;
+            if(align & TEXT_ALIGN_RIGHT){
+                float dif = x-x0;
+                for(auto v=last_line_vertices; v<vertices; v++)
+                    v->p.x -= dif;
+            }
+            last_line_vertices = vertices;
             x = x0;
             y -= font_size;
         }else if(c >= 32 && c <= 126){
@@ -618,9 +637,9 @@ u32 render_text(float x, float y, float z, u8 quality, String &s, Vertex_PTCa *v
         *height = y0-y+font_size;
     return (u32)(vertices-o_vertices);
 }
-u32 render_text_monospace(float x, float y, float z, u8 quality, String &s, Vertex_PTCa *vertices, float font_size, float *width, float *height, RgbaColor color, TextAlignment align){
+u32 render_text_monospace(float x, float y, float z, u8 quality, String &s, Vertex_PTCa *vertices, float font_size, float *width, float *height, RgbaColor color, u8 align){
     Vertex_PTCa *o_vertices = vertices;
-    if(align == TEXT_ALIGN_TOP)
+    if(align & TEXT_ALIGN_TOP)
         y -= font_size;
     float x0 = x;
     float y0 = y;
@@ -638,11 +657,18 @@ u32 render_text_monospace(float x, float y, float z, u8 quality, String &s, Vert
     }
     
     y += -font_size;
+    Vertex_PTCa *last_line_vertices = vertices;
     for(int i=0; i<s.length; i++){
         char c = s.text[i];
         if(c == '\n'){
             if(x > maxX)
                 maxX = x;
+            if(align & TEXT_ALIGN_RIGHT){
+                float dif = x-x0;
+                for(auto v=last_line_vertices; v<vertices; v++)
+                    v->p.x -= dif;
+            }
+            last_line_vertices = vertices;
             x = x0;
             y -= font_size;
         }else if(c >= 32 && c <= 126){
